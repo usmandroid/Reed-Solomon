@@ -20,16 +20,21 @@ def encode(input, output_filename):
     coder = rs.RSCoder(255,223)
 
     output = []
-
-    while True:
-        block = input.read(223)
-        if not block: break
-        code = coder.encode(block)
-        output.append(code)
-        sys.stderr.write(".")
+    with open(input, mode='rb') as file:
+        block = file.read(223)
+        while block:
+            # print(block)
+            code = coder.encode(block)
+            # print(':'.join(x.encode('hex') for x in code))
+            output.append(code)
+            print(len(output))
+            # b is important -> binary
+            block = file.read(223)
+            sys.stderr.write(".")
 
     sys.stderr.write("\n")
-
+    # with open("test.bin", "wb") as file:
+    #     file.write(code.encode('binary'))
     out = Image.new("L", (rowstride,len(output)))
     out.putdata("".join(output))
     out.save(output_filename)
@@ -50,14 +55,28 @@ def decode(input_filename):
 
         blocknum += 1
         sys.stdout.write(str(decoded))
-        sys.stderr.write(".")
+        # sys.stderr.write(".\n")
     sys.stderr.write("\n")
 
 if __name__ == "__main__":
-    if "-d" == sys.argv[1]:
-        # decode
-        decode(sys.argv[2])
+    # if "-d" == sys.argv[1]:
+    #     # decode
+    #     decode(sys.argv[2])
 
-    else:
+    # else:
         # encode
-        encode(sys.stdin,sys.argv[1])
+        # encode(sys.stdin,sys.argv[1])
+        # message = "This is a secret Message!"
+        # print("Encoding Message: ",message)
+        # encode(sys.argv[1], sys.argv[1])
+        # encode("message.txt", "message_enc.png")
+    message = "message"
+    # message = "alice_wonderland"
+    message_file = message + ".txt"
+    output_file = message+"_enc"+".png"
+    if "-e" == sys.argv[1]:
+        encode(message_file, output_file)
+    if "-d" == sys.argv[1]:
+        decode(output_file)
+
+    # encode("4CmAn.png", "4CmAn_enc.png")
